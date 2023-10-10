@@ -14,5 +14,56 @@ products = [
 #
 #Add all the REST API end-points here
 #
+# Example request - http://localhost:5000/products
+@app.route('/products', methods=['GET'])
+def get_products():
+    return jsonify(products)
+
+# Example request - http://localhost:5000/products/144 - with method GET
+@app.route('/products/<id>', methods=['GET'])
+def get_product(id):
+    id = int(id)
+    product = [x for x in products if x["id"] == id][0]
+    return jsonify(product)
+
+# Example request - http://localhost:5000/products - with method POST
+@app.route('/products', methods=['POST'])
+def add_product():
+    products.append(request.get_json())
+    return '', 201
+
+# Example request - http://localhost:5000/products/144 - with method PUT
+# @app.route('/products/<id>', methods=['PUT'])
+# def update_product(id):
+#     id = int(id)
+#     updated_product = json.loads(request.data)
+#     product = [x for x in products if x["id"] == id][0]
+#     for key, value in updated_product.items():
+#         product[key] = value
+#     return '', 204
+@app.route('/products/<id>', methods=['PUT'])
+def update_product(id):
+    id = int(id)
+    updated_product = json.loads(request.data)
+    
+    # Find the product with the given id
+    product = next((x for x in products if x["id"] == id), None)
+    
+    if product is not None:
+        # Update the product if it exists
+        for key, value in updated_product.items():
+            product[key] = value
+        return '', 204
+    else:
+        # Return a 404 response if the product doesn't exist
+        return 'Product not found', 404
+
+# Example request - http://localhost:5000/products/144 - with method DELETE
+@app.route('/products/<id>', methods=['DELETE'])
+def remove_product(id):
+    id = int(id)
+    product = [x for x in products if x["id"] == id][0]
+    products.remove(product)
+    return '', 204
 
 app.run(port=5000,debug=True)
